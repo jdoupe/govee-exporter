@@ -11,7 +11,6 @@ First clone the repository, then run the following command to get a binary for y
 ```bash
 git clone https://github.com/jdoupe/govee-exporter.git
 cd govee-exporter
-go mod tidy
 go build .
 ```
 

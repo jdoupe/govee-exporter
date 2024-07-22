@@ -1,4 +1,3 @@
 dist/
 run.sh
 govee-exporter
-go.sum
