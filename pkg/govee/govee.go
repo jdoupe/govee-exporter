@@ -1,5 +1,5 @@
 // Package govee provides a function to read data from govee sensors using Bluetooth LE.
-package miflora
+package govee
 
 import (
 	"bytes"
