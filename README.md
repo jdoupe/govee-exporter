@@ -4,11 +4,14 @@ A [prometheus](https://prometheus.io) exporter which can read data from Govee de
 
 ## Installation
 
-First clone the repository, then run the following command to get a binary for your current operating system / architecture. This assumes a working Go installation with modules support (Go >= 1.11.0):
+This assumes you already have a bluetooth adapter in your system, along with appropriate drivers loaded. This is included in many distributions. See https://www.bluez.org/.
+
+First clone the repository, then run the following command to get a binary for your current operating system / architecture. This assumes a working Go installation with modules support (Go >= 1.12.0):
 
 ```bash
 git clone https://github.com/jdoupe/govee-exporter.git
 cd govee-exporter
+go mod tidy
 go build .
 ```
 
