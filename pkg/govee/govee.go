@@ -13,6 +13,9 @@ import (
 )
 
 var (
+	someCharacteristic = &ble.Characteristic{
+		ValueHandle: 0x34,
+	}
 	firmwareCharacteristic = &ble.Characteristic{
 		ValueHandle: 0x38,
 	}
@@ -55,6 +58,7 @@ type Sensors struct {
 	Moisture     byte
 	Light        uint16
 	Conductivity uint16
+	Humidity     float64
 }
 
 // UnmarshalBinary implements encoding.BinaryUnmarshaler.
@@ -95,6 +99,12 @@ func ReadData(ctx context.Context, log logrus.FieldLogger, device ble.Device, ma
 	if err != nil {
 		return Data{}, fmt.Errorf("error dialing: %s", err)
 	}
+	
+	something, err := c.ReadCharacteristic(someCharacteristic)
+	if err != nil {
+		return Data{}, fmt.Errorf("error reading some info: %s", err)
+	}
+	log.Debugf("Data: %x", something)
 
 	firmwareRaw, err := c.ReadCharacteristic(firmwareCharacteristic)
 	if err != nil {
