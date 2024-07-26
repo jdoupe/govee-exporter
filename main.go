@@ -53,7 +53,7 @@ func main() {
 		provider.AddSensor(s)
 	}
 
-	c := &collector.Flowercare{
+	c := &collector.Govee{
 		Log:           log,
 		Source:        provider.GetData,
 		Sensors:       config.Sensors,

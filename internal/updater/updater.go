@@ -30,7 +30,7 @@ type queueItem struct {
 	LastRetry time.Duration
 }
 
-// Updater can be used to get data from a set of Miflora sensors and cache that data temporarily.
+// Updater can be used to get data from a set of Govee sensors and cache that data temporarily.
 type Updater struct {
 	log            logrus.FieldLogger
 	refreshTimeout time.Duration

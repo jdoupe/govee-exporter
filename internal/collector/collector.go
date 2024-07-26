@@ -12,9 +12,6 @@ import (
 const (
 	// MetricPrefix contains the prefix used by all metrics emitted from this collector.
 	MetricPrefix = "govee_"
-
-	// Conversion factor from µS/cm to S/m
-	factorConductivity = 0.0001
 )
 
 var (
@@ -31,34 +28,22 @@ var (
 		MetricPrefix+"updated_timestamp",
 		"Contains the timestamp when the last communication with the Bluetooth device happened.",
 		varLabelNames, nil)
-	infoDesc = prometheus.NewDesc(
-		MetricPrefix+"info",
-		"Contains information about the Flower Care device.",
-		append(varLabelNames, "version"), nil)
 	batteryDesc = prometheus.NewDesc(
 		MetricPrefix+"battery_percent",
 		"Battery level in percent.",
-		varLabelNames, nil)
-	conductivityDesc = prometheus.NewDesc(
-		MetricPrefix+"conductivity_sm",
-		"Soil conductivity in Siemens/meter.",
-		varLabelNames, nil)
-	lightDesc = prometheus.NewDesc(
-		MetricPrefix+"brightness_lux",
-		"Ambient lighting in lux.",
-		varLabelNames, nil)
-	moistureDesc = prometheus.NewDesc(
-		MetricPrefix+"moisture_percent",
-		"Soil relative moisture in percent.",
 		varLabelNames, nil)
 	temperatureDesc = prometheus.NewDesc(
 		MetricPrefix+"temperature_celsius",
 		"Ambient temperature in celsius.",
 		varLabelNames, nil)
+	humidityDesc = prometheus.NewDesc(
+		MetricPrefix+"humidity_percent",
+		"Ambient humidity in percent.",
+		varLabelNames, nil)
 )
 
-// Flowercare implements a Prometheus collector that emits metrics of a Miflora sensor.
-type Flowercare struct {
+// Govee implements a Prometheus collector that emits metrics of a Govee thermometer/hygrometer.
+type Govee struct {
 	Log           logrus.FieldLogger
 	Source        func(macAddress string) (govee.Data, error)
 	Sensors       []config.Sensor
@@ -66,25 +51,22 @@ type Flowercare struct {
 }
 
 // Describe implements prometheus.Collector
-func (c *Flowercare) Describe(ch chan<- *prometheus.Desc) {
+func (c *Govee) Describe(ch chan<- *prometheus.Desc) {
 	ch <- upDesc
 	ch <- updatedTimestampDesc
-	ch <- infoDesc
 	ch <- batteryDesc
-	ch <- conductivityDesc
-	ch <- lightDesc
-	ch <- moistureDesc
 	ch <- temperatureDesc
+	ch <- humidityDesc
 }
 
 // Collect implements prometheus.Collector
-func (c *Flowercare) Collect(ch chan<- prometheus.Metric) {
+func (c *Govee) Collect(ch chan<- prometheus.Metric) {
 	for _, s := range c.Sensors {
 		c.collectSensor(ch, s)
 	}
 }
 
-func (c *Flowercare) collectSensor(ch chan<- prometheus.Metric, s config.Sensor) {
+func (c *Govee) collectSensor(ch chan<- prometheus.Metric, s config.Sensor) {
 	labels := []string{
 		s.MacAddress,
 		s.Name,
@@ -99,7 +81,6 @@ func (c *Flowercare) collectSensor(ch chan<- prometheus.Metric, s config.Sensor)
 	}
 	c.sendMetric(ch, upDesc, 1, labels)
 	c.sendMetric(ch, updatedTimestampDesc, float64(data.Time.Unix()), labels)
-	c.sendMetric(ch, infoDesc, 1, append(labels, data.Firmware.Version))
 
 	age := time.Since(data.Time)
 	if age >= c.StaleDuration {
@@ -110,37 +91,29 @@ func (c *Flowercare) collectSensor(ch chan<- prometheus.Metric, s config.Sensor)
 	c.collectData(ch, data, labels)
 }
 
-func (c *Flowercare) collectData(ch chan<- prometheus.Metric, data govee.Data, labels []string) {
+func (c *Govee) collectData(ch chan<- prometheus.Metric, data govee.Data, labels []string) {
 	for _, metric := range []struct {
 		Desc  *prometheus.Desc
 		Value float64
 	}{
 		{
 			Desc:  batteryDesc,
-			Value: float64(data.Firmware.Battery),
-		},
-		{
-			Desc:  conductivityDesc,
-			Value: float64(data.Sensors.Conductivity) * factorConductivity,
-		},
-		{
-			Desc:  lightDesc,
-			Value: float64(data.Sensors.Light),
-		},
-		{
-			Desc:  moistureDesc,
-			Value: float64(data.Sensors.Moisture),
+			Value: float64(data.Sensors.Battery),
 		},
 		{
 			Desc:  temperatureDesc,
-			Value: data.Sensors.Temperature,
+			Value: float64(data.Sensors.Temperature),
+		},
+		{
+			Desc:  humidityDesc,
+			Value: float64(data.Sensors.Humidity),
 		},
 	} {
 		c.sendMetric(ch, metric.Desc, metric.Value, labels)
 	}
 }
 
-func (c *Flowercare) sendMetric(ch chan<- prometheus.Metric, desc *prometheus.Desc, value float64, labels []string) {
+func (c *Govee) sendMetric(ch chan<- prometheus.Metric, desc *prometheus.Desc, value float64, labels []string) {
 	m, err := prometheus.NewConstMetric(desc, prometheus.GaugeValue, value, labels...)
 	if err != nil {
 		c.Log.Errorf("can not create metric %q: %s", desc, err)
