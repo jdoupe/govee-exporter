@@ -1,10 +1,11 @@
 # govee-exporter
 
-IMPORTANT NOTE IMPORTANT NOTE IMPORTANT NOTE
+CHANGE LOG of sorts:
 
 2024-07-25 - This package doesn't work at this point... at all.
+2024-08-01 - This package now works.  The code is a mess, but it works.  Be glad to have any help from someone that actually knows Go.
 
-STAY TUNED!
+
 
 A [prometheus](https://prometheus.io) exporter which can read data from Govee devices using Bluetooth.
 

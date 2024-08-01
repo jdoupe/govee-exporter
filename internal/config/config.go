@@ -133,10 +133,6 @@ func Parse(log logrus.FieldLogger) (Config, error) {
 	pflag.Float64Var(&result.Retry.Factor, "retry-factor", result.Retry.Factor, "Factor used to multiply wait time for subsequent retries.")
 	pflag.Parse()
 
-	if len(result.Sensors) == 0 {
-		return result, errors.New("need to provide at least one sensor")
-	}
-
 	if len(result.Device) == 0 {
 		return result, errors.New("need to provide a bluetooth device")
 	}
