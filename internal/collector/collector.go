@@ -1,10 +1,10 @@
 package collector
 
 import (
-	"fmt"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/jdoupe/govee-exporter/pkg/govee"
+        "github.com/sirupsen/logrus"
 )
 
 const (
@@ -42,6 +42,7 @@ var (
 
 type GoveeAllData struct {
     Data map[string]*govee.Data
+    Log *logrus.Logger
 }
 
 // Describe implements prometheus.Collector
@@ -55,8 +56,8 @@ func (c *GoveeAllData) Describe(ch chan<- *prometheus.Desc) {
 
 // Collect implements prometheus.Collector
 func (c *GoveeAllData) Collect(ch chan<- prometheus.Metric) {
+  c.Log.Debugf("Sending data...\n")
   for _, d := range c.Data {
-      fmt.Printf("LocalName: %s\n", d.LocalName)
       labels := []string{
         d.Address.String(),
         d.LocalName,
@@ -91,8 +92,7 @@ func (c *GoveeAllData) Collect(ch chan<- prometheus.Metric) {
 func (c *GoveeAllData) sendMetric(ch chan<- prometheus.Metric, desc *prometheus.Desc, value float64, labels []string) {
 	m, err := prometheus.NewConstMetric(desc, prometheus.GaugeValue, value, labels...)
 	if err != nil {
-		//c.Log.Errorf("can not create metric %q: %s", desc, err)
-		fmt.Printf("can not create metric %q: %s", desc, err)
+		c.Log.Errorf("can not create metric %q: %s", desc, err)
 		return
 	}
 

@@ -3,13 +3,14 @@ package config
 import (
 	"errors"
 	"fmt"
-	"strings"
-	"time"
+//	"strings"
+//	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )
 
+/*
 type SensorList []Sensor
 
 func (s *SensorList) String() string {
@@ -68,6 +69,7 @@ func parseSensor(value string) (Sensor, error) {
 		MacAddress: tokens[1],
 	}, nil
 }
+*/
 
 type LogLevel logrus.Level
 
@@ -92,25 +94,28 @@ func (l *LogLevel) Set(val string) error {
 type Config struct {
 	LogLevel        LogLevel
 	ListenAddr      string
-	Sensors         SensorList
+//	Sensors         SensorList
 	Device          string
-	RefreshDuration time.Duration
-	RefreshTimeout  time.Duration
-	StaleDuration   time.Duration
-	Retry           RetryConfig
+//	RefreshDuration time.Duration
+//	RefreshTimeout  time.Duration
+//	StaleDuration   time.Duration
+//	Retry           RetryConfig
 }
 
+/*
 type RetryConfig struct {
 	MinDuration time.Duration
 	MaxDuration time.Duration
 	Factor      float64
 }
+*/
 
 func Parse(log logrus.FieldLogger) (Config, error) {
 	result := Config{
 		LogLevel:        LogLevel(logrus.InfoLevel),
 		ListenAddr:      ":9294",
 		Device:          "hci0",
+/*
 		RefreshDuration: 2 * time.Minute,
 		RefreshTimeout:  time.Minute,
 		StaleDuration:   5 * time.Minute,
@@ -119,24 +124,26 @@ func Parse(log logrus.FieldLogger) (Config, error) {
 			MaxDuration: 30 * time.Minute,
 			Factor:      2,
 		},
+*/
 	}
 
 	pflag.Var(&result.LogLevel, "log-level", "Minimum log level to show.")
 	pflag.StringVarP(&result.ListenAddr, "addr", "a", result.ListenAddr, "Address to listen on for connections.")
-	pflag.VarP(&result.Sensors, "sensor", "s", "MAC-address of sensor to collect data from. Can be specified multiple times.")
+//	pflag.VarP(&result.Sensors, "sensor", "s", "MAC-address of sensor to collect data from. Can be specified multiple times.")
 	pflag.StringVarP(&result.Device, "adapter", "i", result.Device, "Bluetooth device to use for communication.")
-	pflag.DurationVarP(&result.RefreshDuration, "refresh-duration", "r", result.RefreshDuration, "Interval used for refreshing data from bluetooth devices.")
-	pflag.DurationVar(&result.RefreshTimeout, "refresh-timeout", result.RefreshTimeout, "Timeout for reading data from a sensor.")
-	pflag.DurationVar(&result.StaleDuration, "stale-duration", result.StaleDuration, "Duration after which data is considered stale and is not used for metrics anymore.")
-	pflag.DurationVar(&result.Retry.MinDuration, "retry-min-duration", result.Retry.MinDuration, "Minimum wait time between retries on error.")
-	pflag.DurationVar(&result.Retry.MaxDuration, "retry-max-duration", result.Retry.MaxDuration, "Maximum wait time between retries on error.")
-	pflag.Float64Var(&result.Retry.Factor, "retry-factor", result.Retry.Factor, "Factor used to multiply wait time for subsequent retries.")
+//	pflag.DurationVarP(&result.RefreshDuration, "refresh-duration", "r", result.RefreshDuration, "Interval used for refreshing data from bluetooth devices.")
+//	pflag.DurationVar(&result.RefreshTimeout, "refresh-timeout", result.RefreshTimeout, "Timeout for reading data from a sensor.")
+//	pflag.DurationVar(&result.StaleDuration, "stale-duration", result.StaleDuration, "Duration after which data is considered stale and is not used for metrics anymore.")
+//	pflag.DurationVar(&result.Retry.MinDuration, "retry-min-duration", result.Retry.MinDuration, "Minimum wait time between retries on error.")
+//	pflag.DurationVar(&result.Retry.MaxDuration, "retry-max-duration", result.Retry.MaxDuration, "Maximum wait time between retries on error.")
+//	pflag.Float64Var(&result.Retry.Factor, "retry-factor", result.Retry.Factor, "Factor used to multiply wait time for subsequent retries.")
 	pflag.Parse()
 
 	if len(result.Device) == 0 {
 		return result, errors.New("need to provide a bluetooth device")
 	}
 
+/*
 	if result.RefreshDuration < time.Minute {
 		log.Warnf("Refresh durations below one minute are discouraged: %s", result.RefreshDuration)
 	}
@@ -156,6 +163,7 @@ func Parse(log logrus.FieldLogger) (Config, error) {
 	if result.Retry.Factor < 1 {
 		return result, fmt.Errorf("retry factor needs to be equal or larger than one: %v", result.Retry.Factor)
 	}
+*/
 
 	return result, nil
 }

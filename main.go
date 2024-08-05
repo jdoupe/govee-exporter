@@ -41,6 +41,7 @@ var (
 
 var	c = &collector.GoveeAllData{
 		Data: make(map[string]*govee.Data),
+		Log: log,
 	}
 
 func main() {
@@ -112,7 +113,7 @@ func startSignalHandler(ctx context.Context, wg *sync.WaitGroup, cancel func()) 
 
 func advHandler(a ble.Advertisement) {
     if strings.HasPrefix(a.LocalName(),"GV") {
-        c.Data[a.LocalName()] = govee.ParseAdv(a)
+        c.Data[a.LocalName()] = govee.ParseAdv(a,log)
     }
 }
 
