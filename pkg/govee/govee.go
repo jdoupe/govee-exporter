@@ -22,24 +22,7 @@ type Data struct {
 }
 
 func ParseAdv(a ble.Advertisement, log *logrus.Logger) (*Data) {
-    if a.Connectable() {
-        log.Debugf("[%s] C %3d:", a.Addr(), a.RSSI())
-    } else {
-        log.Debugf("[%s] N %3d:", a.Addr(), a.RSSI())
-    }
-    comma := ""
-    if len(a.LocalName()) > 0 {
-        log.Debugf(" Name: %s", a.LocalName())
-        comma = ","
-    }
-    if len(a.Services()) > 0 {
-        log.Debugf("%s Svcs: %v", comma, a.Services())
-        comma = ","
-    }
-    if len(a.ManufacturerData()) > 0 {
-        log.Debugf("%s MD: %X", comma, a.ManufacturerData())
-    }
-    log.Debugf("\n")
+    log.Debugf("[%s] %3d: Name: %s, Svcs: %v, MD: %X", a.Addr(), a.RSSI(), a.LocalName(), a.Services(), a.ManufacturerData())
 
     p := bytes.NewBuffer(a.ManufacturerData())
 

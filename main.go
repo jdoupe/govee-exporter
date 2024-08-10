@@ -112,6 +112,7 @@ func startSignalHandler(ctx context.Context, wg *sync.WaitGroup, cancel func()) 
 }
 
 func advHandler(a ble.Advertisement) {
+    log.Tracef("[%s] %3d: Name: %s, Svcs: %v, MD: %X", a.Addr(), a.RSSI(), a.LocalName(), a.Services(), a.ManufacturerData())
     if strings.HasPrefix(a.LocalName(),"GV") {
         c.Data[a.LocalName()] = govee.ParseAdv(a,log)
     }
