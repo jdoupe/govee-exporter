@@ -37,6 +37,8 @@ var (
 	version = "dev"
 	commit  = "none"
 	date    = "unknown"
+
+	mutex = &sync.Mutex{}
 )
 
 var	c = &collector.GoveeAllData{
@@ -100,7 +102,7 @@ func startSignalHandler(ctx context.Context, wg *sync.WaitGroup, cancel func()) 
 	go func() {
 		defer wg.Done()
 
-		sigCh := make(chan os.Signal)
+		sigCh := make(chan os.Signal, 1)
 		signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
 		log.Debug("Signal handler ready.")
@@ -114,7 +116,9 @@ func startSignalHandler(ctx context.Context, wg *sync.WaitGroup, cancel func()) 
 func advHandler(a ble.Advertisement) {
     log.Tracef("[%s] %3d: Name: %s, Svcs: %v, MD: %X", a.Addr(), a.RSSI(), a.LocalName(), a.Services(), a.ManufacturerData())
     if strings.HasPrefix(a.LocalName(),"GV") {
+		mutex.Lock()
         c.Data[a.LocalName()] = govee.ParseAdv(a,log)
+		mutex.Unlock()
     }
 }
 
