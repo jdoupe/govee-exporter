@@ -85,7 +85,7 @@ func main() {
 	startSignalHandler(ctx, wg, cancel)
 	d, err := dev.NewDevice(config.Device)
         if err != nil {
-                log.Fatalf("can't new device : %s", err)
+                log.Fatalf("Cannot init new device : %s", err)
         }
         ble.SetDefaultDevice(d)
 
